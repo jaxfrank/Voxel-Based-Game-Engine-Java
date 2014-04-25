@@ -8,5 +8,25 @@
 *.war
 *.ear
 
+*.pydevproject
+.project
+.metadata
+bin/**
+bin/**/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+Workspace/3DGAmeEngine/lib/javadocs
+bin6:50 PM 4/25/2014
+bin
+snapshots
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
