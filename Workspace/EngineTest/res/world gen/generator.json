@@ -1,0 +1,18 @@
+{
+	"func_1": {
+		"module": "ModuleBasisFunction",
+		"basis": "gradient",
+		"interpolation": "quintic",
+		"seed": "0"
+	},
+	"func_2": {
+		"module": "ModuleFractal",
+		"type" : "RIDGEMULTI",
+		"octaves" : "6",
+		"frequency" : "2",
+		"lacunarity" : "10",
+		"gain" : "1",
+		"H" : "1",
+		"offset" : "0"
+	}
+}

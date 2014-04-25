@@ -1,0 +1,42 @@
+{
+  "func_3": {
+    "module": "ModuleBasisFunction",
+    "basis": "gradient",
+    "interpolation": "quintic",
+    "seed": "-378290934"
+  },
+  "func_2": {
+    "module": "ModuleFractal",
+    "type": "fbm",
+    "octaves": "1",
+    "frequency": "0.75",
+    "lacunarity": "2.0",
+    "gain": "0.5",
+    "H": "1.0",
+    "offset": "0.0",
+    "source_0": "func_3",
+    "seed": "-378290934"
+  },
+  "func_1": {
+    "module": "ModuleGradient",
+    "gradient": "0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0"
+  },
+  "func_13": {
+    "module": "ModuleTranslateDomain",
+    "axisX": "0.0",
+    "axisY": "func_2",
+    "axisZ": "0.0",
+    "axisW": "0.0",
+    "axisU": "0.0",
+    "axisV": "0.0",
+    "source": "func_1"
+  },
+  "func_14": {
+    "module": "ModuleSelect",
+    "low": "1.0",
+    "high": "-1.0",
+    "control": "func_13",
+    "threshold": "0.5",
+    "falloff": "0.0"
+  }
+}

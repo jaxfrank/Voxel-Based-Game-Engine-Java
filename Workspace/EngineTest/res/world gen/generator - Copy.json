@@ -1,0 +1,28 @@
+minecraftlevel=
+{
+	{name="Constant1", type="constant", constant=1},
+	{name="Constant0", type="constant", constant=0},
+	{name="ConstantNeg1", type="constant", constant=-1},
+	
+	{name="GroundGradient", type="gradient", y1=0, y2=1},
+	{name="GroundShape", type="fractal", fractal_type="FBM", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=2, frequency=1.75},
+	{name="GroundTurb", type="turbulence", main_source="GroundGradient",y_axis_source="GroundShape", y_power=0.30},
+	
+	{name="GroundBase", type="select", main_source="GroundTurb", low_source="ConstantNeg1", high_source="Constant1", threshold=0.2, falloff=0},
+	
+	{name="CaveShape1", type="fractal", fractal_type="RIDGEDMULTI", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=1, frequency=2},
+	{name="CaveBase1", type="select", main_source="CaveShape1", low_source="Constant0", high_source="Constant1", threshold=0.7, falloff=0},
+	
+	{name="CaveShape2", type="fractal", fractal_type="RIDGEDMULTI", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=1, frequency=2, seed=1323},
+	{name="CaveBase2", type="select", main_source="CaveShape2", low_source="Constant0", high_source="Constant1", threshold=0.7, falloff=0},
+	{name="CaveMult", type="combiner", combiner_type="MULTIPLY", source_0="CaveBase1", source_1="CaveBase2"},
+	
+	{name="CaveTurbX", type="fractal", fractal_type="FBM", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=3, frequency=3, seed=1001},
+	{name="CaveTurbY", type="fractal", fractal_type="FBM", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=3, frequency=3, seed=1201},
+	{name="CaveTurbZ", type="fractal", fractal_type="FBM", basis_type="GRADIENT", interp_type="QUINTIC", num_octaves=3, frequency=3, seed=1301},
+	{name="CaveTurb", type="turbulence", main_source="CaveMult", x_axis_source="CaveTurbX", y_axis_source="CaveTurbY", z_axis_source="CaveTurbZ", x_power=0.25, y_power=0.25, z_power=0.25},
+	
+	
+	{name="CaveInvert", type="scaleoffset", source="CaveTurb", scale=-1, offset=1},
+	{name="GroundCaveMult", type="combiner", combiner_type="MULTIPLY", source_0="GroundBase", source_1="CaveInvert"} -- Map this function for final output
+}

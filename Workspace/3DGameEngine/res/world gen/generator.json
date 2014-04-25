@@ -1,0 +1,27 @@
+{
+	"Constant1" : {"basis" : "constant", "constant" : "1"},
+	"Constant0" : {"basis" : "constant", "constant" : "0"},
+	"ConstantNeg1" : {"basis" : "constant", "constant" : "-1"},
+	
+	"GroundGradient" : {"basis" : "gradient", "y1" : "0", "y2" : "1"},
+	"GroundShape" : {"basis" : "fractal", "fractal_basis" : "FBM", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "2", "frequency" : "1.75"},
+	"GroundTurb" : {"basis" : "turbulence", "main_source" : "GroundGradient", "y_axis_source" : "GroundShape", "y_power" : "0.30"},
+	
+	"GroundBase" : {""basis"" : "select", "main_source" : "GroundTurb", "low_source" : "ConstantNeg1", "high_source" : "Constant1", "threshold" : "0.2", "falloff" : "0"},
+	
+	"CaveShape1" : {"basis" : "fractal", "fractal_basis" : "RIDGEDMULTI", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "1", "frequency" : "2"},
+	"CaveBase1" : {"basis" : "select", "main_source" : "CaveShape1", "low_source" : "Constant0", "high_source" : "Constant1", "threshold" : "0.7", "falloff" : "0"},
+	
+	"CaveShape2": {"basis" : "fractal", "fractal_basis" : "RIDGEDMULTI", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "1", "frequency" : "2", "seed" : "1323"},
+	"CaveBase2" : {"basis" : "select", "main_source" : "CaveShape2", "low_source" : "Constant0", "high_source" : "Constant1", "threshold" : "0.7", "falloff" : "0"},
+	"CaveMult" : {"basis" : "combiner", "combiner_basis" : "MULTIPLY", "source_0" : "CaveBase1", "source_1" : "CaveBase2"},
+	
+	"CaveTurbX" : {"basis" : "fractal", "fractal_basis" : "FBM", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "3", "frequency" : "3", "seed" : "1001"},
+	"CaveTurbY" : {"basis" : "fractal", "fractal_basis" : "FBM", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "3", "frequency" : "3", "seed" : "1201"},
+	"CaveTurbZ" : {"basis" : "fractal", "fractal_basis" : "FBM", "basis_basis" : "GRADIENT", "interp_basis" : "QUINTIC", "num_octaves" : "3", "frequency" : "3", "seed" : "1301"},
+	"CaveTurb" : {"basis" : "turbulence", "main_source" : "CaveMult", "x_axis_source" : "CaveTurbX", "y_axis_source" : "CaveTurbY", "z_axis_source" : "CaveTurbZ", "x_power" : "0.25", "y_power" : "0.25", "z_power" : "0.25"},
+	
+	
+	"CaveInvert" : {"basis" : "scaleoffset", "source" : "CaveTurb", "scale" : "-1", "offset" : "1"},
+	"GroundCaveMult": {"basis" : "combiner", "combiner_basis" : "MULTIPLY", "source_0" : "GroundBase", "source_1" : "CaveInvert"} -- Map this function for final output
+}
