@@ -62,30 +62,30 @@ public class Chunk {
 						setBlock(new Vector3i(i, j, k), "air");
 					 */
 					if(value > 0)
-						setBlock(block, "stone");
+						setBlock(block, 1);
 					else 
-						setBlock(block, "glass");
+						setBlock(block, 3);
 				}
 			}
 		}
 	}
 	
-	public void setBlock(Vector3i loc, String type) {
+	public void setBlock(Vector3i loc, int type) {
 		int x = loc.getX();
 		int y = loc.getY();
 		int z = loc.getZ();
 		
 		if(blocks[x][y][z] != null) {
-			if(!blocks[x][y][z].getBlockName().equals(type)) {
-				if(blocks[x][y][z].getBlockName().equals("air")) {
+			if(blocks[x][y][z].getBlockID() != type) {
+				if(blocks[x][y][z].getBlockID() == 0) {
 					numSolidBlocks++;
-				} else if(type.equals("air"))
+				} else if(type == 0)
 					numSolidBlocks--;
 				blocks[x][y][z] = Block.getBlock(type);
 				rebuild();
 			}
 		} else {
-			if(!type.equals("air"))
+			if(type != 0)
 				numSolidBlocks++;
 			blocks[x][y][z] = Block.getBlock(type);
 			rebuild();

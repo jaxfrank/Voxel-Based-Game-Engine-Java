@@ -17,7 +17,7 @@ public class MeshBuilder extends NotifyingThread {
 	public void execute() {
 		while(true) {
 			Vector3i chunkPos = new Vector3i(0,0,0);
-			synchronized (World.getInstance().getGenerator().chunksToGenerate) {
+			synchronized (Main.worldRenderer.chunkRenderers) {
 				if(Main.worldRenderer.chunksToRebuild.size() == 0)
 					break;
 				chunkPos = Main.worldRenderer.chunksToRebuild.poll();
@@ -41,14 +41,14 @@ public class MeshBuilder extends NotifyingThread {
 				for(int k = 0; k < chunk.getBlocks()[0][0].length; k++){
 					if(!chunk.getBlocks()[i][j][k].isRendered()) continue; // if the current block doesn't have a texture then don't bother trying to calculate the vertices
 
-					if(WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererName()) != null) {
+					if(WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()) != null) {
 						if(chunk.getBlocks()[i][j][k].isOpaqueCube())
-							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererName()).generate(vertices, indices, World.getInstance(), chunk, i, j, k);
-						if(chunk.getBlocks()[i][j][k].isTransparent()) {
-							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererName()).generate(transparentVertices, transparentIndices, World.getInstance(), chunk, i, j , k);
+							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()).generate(vertices, indices, World.getInstance(), chunk, i, j, k);
+						else {
+							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()).generate(transparentVertices, transparentIndices, World.getInstance(), chunk, i, j , k);
 						}
 					} else {
-						System.err.println("Trying to use invalid block renderer: " + chunk.getBlocks()[i][j][k].getRendererName());
+						System.err.println("Trying to use invalid block renderer: " + chunk.getBlocks()[i][j][k].getRendererID());
 						new Exception().printStackTrace();
 						System.exit(-1);
 					}

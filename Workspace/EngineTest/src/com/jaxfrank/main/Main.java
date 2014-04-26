@@ -38,18 +38,22 @@ import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.TableRenderer;
 import com.jaxfrank.main.voxelEngine.world.World;
 
 public class Main extends MainComponent{
-	//bottom side side top side side
-	public static final Block air = new Block("air", -1).setTransparent().setRendered(false).setRendererName(null);
-	public static final Block stone = new Block("stone", 2);
-	public static final Block dirt = new Block("dirt", 3);
-	public static final Block grass = new Block("grass", new int[]{3, 4, 4, 1, 4, 4});
-	public static final Block sand = new Block("sand", 19);
-	public static final Block log = new Block("log", new int[]{22, 21, 21, 22, 21, 21});
-	public static final Block bedRock = new Block("bedrock", 18);
 	
-	public static final Block enchantingTable = new Block("table", new int[]{184, 183, 183, 167, 183, 183}).setTransparent().setRendererName("table");
-	public static final Block flower = new Block("flower", 13).setTransparent().setRendererName("plant");
-	public static final Block glass = new Block("glass", 50).setTransparent();
+	//public static int TABLE_BLOCK_RENDERER_ID;
+	//public static int PLANT_RENDERER_ID;
+	
+	//bottom side side top side side
+	public static final Block air = new Block(0, -1).setTransparent().setRendered(false).setRendererID(-1);
+	public static final Block stone = new Block(1, 2);
+	public static final Block dirt = new Block(2, 3);
+	public static final Block grass = new Block(3, new int[]{3, 4, 4, 1, 4, 4});
+	public static final Block sand = new Block(4, 19);
+	public static final Block log = new Block(5, new int[]{22, 21, 21, 22, 21, 21});
+	public static final Block bedRock = new Block(6, 18);
+	
+	//public static final Block enchantingTable = new Block("table", new int[]{184, 183, 183, 167, 183, 183}).setTransparent().setRendererID(1);
+	//public static final Block flower = new Block("flower", 13).setTransparent().setRendererID(2);
+	public static final Block glass = new Block(7, 50).setTransparent();
 	
 	private Shader shader;
 	private Transform transform;
@@ -89,9 +93,8 @@ public class Main extends MainComponent{
 		World.setInstance(new World(((int)(Math.random() * Integer.MAX_VALUE)) - Integer.MAX_VALUE / 2));
 		
 		worldRenderer = new WorldRenderer(World.getInstance());
-		worldRenderer.addBlockRenderer("Opaque Block", new StandardBlockRenderer());
-		worldRenderer.addBlockRenderer("table", new TableRenderer());
-		worldRenderer.addBlockRenderer("plant", new PlantRenderer());
+		//TABLE_BLOCK_RENDERER_ID = worldRenderer.addBlockRenderer(new TableRenderer());
+		//PLANT_RENDERER_ID = worldRenderer.addBlockRenderer(new PlantRenderer());
 	}
 	
 	@Override

@@ -14,6 +14,7 @@ import com.base.engine.rendering.Transform;
 import com.base.engine.rendering.shader.Shader;
 import com.base.engine.util.multiThread.ThreadCompleteListener;
 import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.BlockRenderer;
+import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.StandardBlockRenderer;
 import com.jaxfrank.main.voxelEngine.world.Chunk;
 import com.jaxfrank.main.voxelEngine.world.World;
 
@@ -27,7 +28,7 @@ public class WorldRenderer implements ThreadCompleteListener{
 	private int NUM_TEXTURES = (int) Math.pow(2, NUM_TEXTURES_EXP);
 	
 	//Block renderers
-	public static HashMap<String, BlockRenderer> renderers = new HashMap<>();
+	public static final ArrayList<BlockRenderer> renderers = new ArrayList<>();
 	
 	public ConcurrentHashMap<Vector3i, ChunkRenderer> chunkRenderers = new ConcurrentHashMap<>();
 	private ArrayList<Vector3i> chunksToRender = new ArrayList<>();
@@ -40,18 +41,26 @@ public class WorldRenderer implements ThreadCompleteListener{
 	private Vector3f cameraForward;
 	private Vector3f cameraUp;
 	
-	private int renderDistance = 2;
+	private int renderDistance = 4;
+	
+	public static final int STANDARD_BLOCK_RENDERER_ID = 0;
 	
 	public WorldRenderer(World world){
 		this.world = world;
+		addBlockRenderer(new StandardBlockRenderer());
 	}
 	
 	public void init(){
 		worldMat = new Material(new Texture("terrain.png"), new Vector3f(1,1,1), 0, 0);
 	}
 	
-	public void addBlockRenderer(String name, BlockRenderer renderer){
-		renderers.put(name, renderer);
+	public int addBlockRenderer(BlockRenderer renderer){
+		renderers.add(renderer);
+		return renderers.size() - 1;
+	}
+	
+	public BlockRenderer getRenderer(int id) {
+		return renderers.get(id);
 	}
 	
 	public void update(){
@@ -107,9 +116,10 @@ public class WorldRenderer implements ThreadCompleteListener{
 		if(numChunksToRebuild > 0 ) {
 			if(meshBuilders == 0) {
 				//System.out.println("Chunks to generate " + numChunksToGenerate + " numGenerators " + numGenerators);
-				int numThreadsToStart = ((numChunksToRebuild / 10.0f) != 0 ? (numChunksToRebuild / 10) + 1 : (numChunksToRebuild / 10));
-				if(numThreadsToStart >= numCores)
-					numThreadsToStart = numCores - 1;
+				//int numThreadsToStart = ((numChunksToRebuild / 10.0f) != 0 ? (numChunksToRebuild / 10) + 1 : (numChunksToRebuild / 10));
+				int numThreadsToStart = 3;
+				//if(numThreadsToStart >= numCores)
+				//	numThreadsToStart = numCores - 1;
 				for(int i = 0; i < numThreadsToStart; i++) {
 					MeshBuilder thread = new MeshBuilder();
 					thread.addListener(this);

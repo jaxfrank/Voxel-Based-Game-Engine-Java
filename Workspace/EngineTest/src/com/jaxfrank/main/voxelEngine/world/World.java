@@ -28,6 +28,7 @@ public class World {
 	public World(int seed){
 		this.seed = seed;
 		rand = new Random(seed);
+		ConcurrentHashMap<Integer, Integer> a = new ConcurrentHashMap<>(11*11*11*5, 0.75f, 8);
 	}
 	
 	public World(String seed){
@@ -38,61 +39,19 @@ public class World {
 	public void update(Vector3f playerPos){
 		//System.out.println("Count of chunks " + chunks.size());
 		loadedChunks.clear();
-		boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
+		//boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
+		Vector3i chunkPos = new Vector3i(0,0,0);
 		for(int i = -loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i < loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i++){
 			for(int j = -loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j < loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j++){
 				for(int k = -loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k < loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k++){
-					loadChunk(new Vector3i(i,j,k));
-					if(rebuild && chunks.containsKey(new Vector3i(i,j,k)))
-						chunks.get(new Vector3i(i,j,k)).rebuild();
+					chunkPos = new Vector3i(i,j,k);
+					loadChunk(chunkPos);
+					//if(rebuild && chunks.containsKey(chunkPos))
+					//	chunks.get(chunkPos).rebuild();
 				}
 			}
 		}
 		getGenerator().update();
-	}
-	
-	public void generateChunks(Vector3i bottomLeft, Vector3i topRight) {
-		long totalTime = 0;
-		for(int i = bottomLeft.getX(); i <= topRight.getX(); i++) {
-			for(int j = bottomLeft.getX(); j <= topRight.getX(); j++) {
-				for(int k = bottomLeft.getX(); k <= topRight.getX(); k++) {
-					long start = System.nanoTime();
-					generateChunk(new Vector3i(i, j, k));
-					long end = System.nanoTime();
-					totalTime += (end - start);
-					//System.out.println(new Vector3i(i, j, k).toString() + ", " + (end - start));
-				}
-			}
-		}
-		int x = topRight.getX() - bottomLeft.getX();
-		int y = topRight.getY() - bottomLeft.getY();
-		int z = topRight.getZ() - bottomLeft.getZ();
-		System.out.println("Total Elapsed Time: " + (totalTime*1e-9) + " seconds , Average: " + ((totalTime / (x * y * z)) * 1e-9) + " seconds");
-		
-	}
-	
-	public void generateChunk(Vector3i location) {
-		if(!chunks.containsKey(location)) {
-			Chunk c = new Chunk(location);
-			c.generate(seed);
-			chunks.put(location, c);
-		} else {
-			chunks.get(location).generate(seed);
-		}
-	}
-	
-	public Chunk[] getLoadedChunks(){
-		Chunk[] chunks = new Chunk[this.loadedChunks.size()];
-		for(int i = 0; i < loadedChunks.size(); i++){
-			chunks[i] = this.chunks.get(loadedChunks.get(i));
-		}
-		return chunks;
-	}
-	
-	public Vector3i[] getLoadedChunkKeys(){
-		Vector3i[] chunkKeys = new Vector3i[loadedChunks.size()]; 
-		loadedChunks.toArray(chunkKeys);
-		return chunkKeys;
 	}
 	
 	private HashMap<Vector3i, Object> generated = new HashMap<>();
@@ -102,14 +61,6 @@ public class World {
 			getGenerator().chunksToGenerate.offer(location);
 		} else {
 			loadedChunks.add(location);
-		}
-	}
-	
-	public void unloadChunk(Vector3i location){
-		String loc = location.toString();
-		if(loadedChunks.contains(loc)){
-			loadedChunks.remove(loc);
-//			System.out.println("Unloading chunk " + location.toString());
 		}
 	}
 	

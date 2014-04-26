@@ -49,17 +49,16 @@ public class WorldGenerator implements ThreadCompleteListener {
 		if(numChunksToGenerate > 0 ) {
 			//System.out.println("Chunks to generate " + numChunksToGenerate + " numGenerators " + numGenerators);
 			if(numGenerators == 0) {
-				int numThreadsToStart = ((numChunksToGenerate / 10.0f) != 0 ? (numChunksToGenerate / 10) + 1 : (numChunksToGenerate / 10));
-				if(numThreadsToStart >= numCores)
-					numThreadsToStart = numCores - 1;
+				//int numThreadsToStart = ((numChunksToGenerate / 10.0f) != 0 ? (numChunksToGenerate / 10) + 1 : (numChunksToGenerate / 10));
+				int numThreadsToStart = 3;
+				//if(numThreadsToStart >= numCores)
+				//	numThreadsToStart = numCores - 1;
 				for(int i = 0; i < numThreadsToStart; i++) {
 					ChunkGenerator thread = new ChunkGenerator();
 					thread.addListener(this);
 					new Thread(thread).start();
 					numGenerators++;
 				}
-			} else {
-				
 			}
 		}
 	}

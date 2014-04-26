@@ -22,12 +22,10 @@ public class ChunkGenerator extends NotifyingThread{
 		}
 		
 		while(true) {
-			synchronized (World.getInstance().getGenerator().chunksToGenerate) {
-				if(World.getInstance().getGenerator().chunksToGenerate.size() == 0 )
-					break;
-				currentChunkPos = World.getInstance().getGenerator().chunksToGenerate.poll();
-				//System.out.println("Generating New Chunk!");
-			}
+			if(World.getInstance().getGenerator().chunksToGenerate.size() == 0 )
+				break;
+			currentChunkPos = World.getInstance().getGenerator().chunksToGenerate.poll();
+			//System.out.println("Generating New Chunk!");
 			
 			World.getInstance().chunks.put(currentChunkPos, getChunk());
 			
@@ -44,7 +42,7 @@ public class ChunkGenerator extends NotifyingThread{
 					blockPos.setY(j);
 					blockPos.setZ(k);
 					
-					chunk.setBlock(blockPos, getBlockName(blockPos));
+					chunk.setBlock(blockPos, getBlockID(blockPos));
 					chunk.setSideVisiblity(blockPos, Side.BACK,   isSideVisible(blockPos.add(new Vector3i(+0, +0, +1)), Side.BACK));
 					chunk.setSideVisiblity(blockPos, Side.FRONT,  isSideVisible(blockPos.add(new Vector3i(+0, +0, -1)), Side.FRONT));
 					chunk.setSideVisiblity(blockPos, Side.LEFT,   isSideVisible(blockPos.add(new Vector3i(-1, +0, +0)), Side.LEFT));
@@ -93,20 +91,20 @@ public class ChunkGenerator extends NotifyingThread{
 		
 		Block block = chunk.getBlock(checkingBlockPos);
 		if(block == null) {
-			return Block.blocks.get(getBlockName(checkingBlockPos)).isTransparent();
+			return Block.blocks.get(getBlockID(checkingBlockPos)).isTransparent();
 		} else {
 			return block.isTransparent();
 		}
 	}
 	
-	private String getBlockName(Vector3i blockPos) {
-		String block = "";
+	private int getBlockID(Vector3i blockPos) {
+		int block = 0;
 		
 		float value = getValue(blockPos);
 		if(value > 0)
-			block = "sand";
+			block = 4;
 		else 
-			block = "air";
+			block = 0;
 		
 		return block;
 	}

@@ -4,32 +4,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Block {
 	
-	public static ConcurrentHashMap<String, Block> blocks = new ConcurrentHashMap<String, Block>();
+	public static ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	private String blockName;
+	private int blockID;
 	private int[] textureIndices;
 	
 	private boolean isOpaqueCube = true;
 	private boolean rendered = true;
-	private String rendererName = "Opaque Block";
+	private int rendererID = 0;
 	
-	public Block(String name, int textureIndex){
-		this(name, new int[]{textureIndex,textureIndex,textureIndex,textureIndex,textureIndex,textureIndex});
+	public Block(int id, int textureIndex){
+		this(id, new int[]{textureIndex,textureIndex,textureIndex,textureIndex,textureIndex,textureIndex});
 	}
 	
-	public Block(String name, int[] textureIndices){
-		if(blocks.containsKey(name)){
-			System.err.println("Block already resgistered with the block ID: \"" + name + "\". Skipping.");
+	public Block(int id, int[] textureIndices){
+		if(blocks.containsKey(id)){
+			System.err.println("Block already resgistered with the block ID: \"" + id + "\". Skipping.");
 			new Exception().printStackTrace();
 			System.exit(-1);
 		} 
-		this.blockName = name;
+		this.blockID = id;
 		this.textureIndices = textureIndices;
-		blocks.put(blockName, this);
+		blocks.put(id, this);
 	}
 	
-	public String getBlockName(){
-		return blockName;
+	public int getBlockID(){
+		return blockID;
 	}
 	
 	public int[] getTextureIndices() {
@@ -40,13 +40,13 @@ public class Block {
 		return textureIndices[side];
 	}
 	
-	public Block setRendererName(String name){
-		this.rendererName = name;
+	public Block setRendererID(int id){
+		this.rendererID = id;
 		return this;
 	}
 	
-	public String getRendererName(){
-		return this.rendererName;
+	public int getRendererID(){
+		return this.rendererID;
 	}
 	
 	public Block setOpaque(){
@@ -76,7 +76,7 @@ public class Block {
 		return this.rendered;
 	}
 	
-	public static Block getBlock(String ID){
+	public static Block getBlock(int ID){
 		return blocks.get(ID);
 	}
 	
