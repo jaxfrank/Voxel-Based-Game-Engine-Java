@@ -43,16 +43,17 @@ public class ChunkGenerator extends NotifyingThread{
 					blockPos.setZ(k);
 					
 					chunk.setBlock(blockPos, getBlockID(blockPos));
-					chunk.setSideVisiblity(blockPos, Side.BACK,   isSideVisible(blockPos.add(new Vector3i(+0, +0, +1)), Side.BACK));
-					chunk.setSideVisiblity(blockPos, Side.FRONT,  isSideVisible(blockPos.add(new Vector3i(+0, +0, -1)), Side.FRONT));
-					chunk.setSideVisiblity(blockPos, Side.LEFT,   isSideVisible(blockPos.add(new Vector3i(-1, +0, +0)), Side.LEFT));
-					chunk.setSideVisiblity(blockPos, Side.RIGHT,  isSideVisible(blockPos.add(new Vector3i(+1, +0, +0)), Side.RIGHT));
-					chunk.setSideVisiblity(blockPos, Side.TOP,    isSideVisible(blockPos.add(new Vector3i(+0, +1, +0)), Side.TOP));
-					chunk.setSideVisiblity(blockPos, Side.BOTTOM, isSideVisible(blockPos.add(new Vector3i(+0, -1, +0)), Side.BOTTOM));
+					chunk.setSideVisiblity(blockPos, Side.BACK,   isSideVisible(blockPos, Side.BACK));
+					chunk.setSideVisiblity(blockPos, Side.FRONT,  isSideVisible(blockPos, Side.FRONT));
+					chunk.setSideVisiblity(blockPos, Side.LEFT,   isSideVisible(blockPos, Side.LEFT));
+					chunk.setSideVisiblity(blockPos, Side.RIGHT,  isSideVisible(blockPos, Side.RIGHT));
+					chunk.setSideVisiblity(blockPos, Side.TOP,    isSideVisible(blockPos, Side.TOP));
+					chunk.setSideVisiblity(blockPos, Side.BOTTOM, isSideVisible(blockPos, Side.BOTTOM));
 				}
 			}
 		}
 		chunk.rebuild();
+		chunk.setGenerated(true);
 		return chunk;
 	}
 	
@@ -70,22 +71,22 @@ public class ChunkGenerator extends NotifyingThread{
 		Vector3i checkingBlockPos = null;
 		switch(side) {
 		case BACK:
-			checkingBlockPos = blockPos.add(new Vector3i(+0, +0, +0));
+			checkingBlockPos = blockPos.add(new Vector3i(0, 0, 1));
 			break;
 		case FRONT:
-			checkingBlockPos = blockPos.add(new Vector3i(+0, +0, -0));
+			checkingBlockPos = blockPos.add(new Vector3i(0, 0, -1));
 			break;
 		case LEFT:
-			checkingBlockPos = blockPos.add(new Vector3i(-0, +0, +0));
+			checkingBlockPos = blockPos.add(new Vector3i(-1, 0, 0));
 			break;
 		case RIGHT:
-			checkingBlockPos = blockPos.add(new Vector3i(+0, +0, +0));
+			checkingBlockPos = blockPos.add(new Vector3i(1, 0, 0));
 			break;
 		case TOP:
-			checkingBlockPos = blockPos.add(new Vector3i(+0, +0, +0));
+			checkingBlockPos = blockPos.add(new Vector3i(0, 1, 0));
 			break;
 		case BOTTOM:
-			checkingBlockPos = blockPos.add(new Vector3i(+0, -1, +0));
+			checkingBlockPos = blockPos.add(new Vector3i(0, -1, 0));
 			break;
 		}
 		

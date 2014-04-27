@@ -1,7 +1,8 @@
 package com.jaxfrank.main.voxelEngine.rendering;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -31,7 +32,7 @@ public class WorldRenderer implements ThreadCompleteListener{
 	public static final ArrayList<BlockRenderer> renderers = new ArrayList<>();
 	
 	public ConcurrentHashMap<Vector3i, ChunkRenderer> chunkRenderers = new ConcurrentHashMap<>();
-	private ArrayList<Vector3i> chunksToRender = new ArrayList<>();
+	private HashSet<Vector3i> chunksToRender = new HashSet<>();
 	public ConcurrentLinkedDeque<Vector3i> chunksToRebuild = new ConcurrentLinkedDeque<>();
 	
 	private int meshBuilders = 0;
@@ -41,7 +42,7 @@ public class WorldRenderer implements ThreadCompleteListener{
 	private Vector3f cameraForward;
 	private Vector3f cameraUp;
 	
-	private int renderDistance = 4;
+	private int renderDistance = 100;
 	
 	public static final int STANDARD_BLOCK_RENDERER_ID = 0;
 	
@@ -70,7 +71,9 @@ public class WorldRenderer implements ThreadCompleteListener{
 	
 	private void updateRenderers() {
 		chunksToRender.clear();
-		for(Vector3i loc : world.loadedChunks) {
+		Iterator<Vector3i> loadedChunk = world.loadedChunks.iterator();
+		while(loadedChunk.hasNext()) {
+			Vector3i loc = loadedChunk.next();
 			Chunk c = world.chunks.get(loc);
 			if(!chunkRenderers.containsKey(loc)){
 				if(shouldRender(loc)) {
@@ -173,8 +176,9 @@ public class WorldRenderer implements ThreadCompleteListener{
 	
 	public void render(Shader s, Transform t){
 		s.updateUniforms(t.getTransformation(), t.getProjectedTransformation(), worldMat);
-		for(Vector3i key : chunksToRender){
-			chunkRenderers.get(key).render();
+		Iterator<Vector3i> chunkPositions = chunksToRender.iterator();
+		while(chunkPositions.hasNext()){
+			chunkRenderers.get(chunkPositions.next()).render();
 		}
 	}
 	

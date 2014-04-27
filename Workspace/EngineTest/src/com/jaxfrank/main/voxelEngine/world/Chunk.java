@@ -12,6 +12,7 @@ public class Chunk {
 	private Vector3i chunkPos;
 	private int numSolidBlocks = 0;
 	private boolean shouldRebuild = true;
+	private boolean generated = false;
 	
 	public Chunk(Vector3i position){
 		chunkPos = position;
@@ -141,5 +142,13 @@ public class Chunk {
 	
 	public void rebuild() {
 		shouldRebuild = true;
+	}
+
+	public boolean isGenerated() {
+		return generated;
+	}
+
+	public void setGenerated(boolean generated) {
+		this.generated = generated;
 	}
 }

@@ -3,7 +3,7 @@
     "module": "ModuleBasisFunction",
     "basis": "gradient",
     "interpolation": "quintic",
-    "seed": "-201262328"
+    "seed": "840816200"
   },
   "func_2": {
     "module": "ModuleFractal",
@@ -15,7 +15,7 @@
     "H": "1.0",
     "offset": "0.0",
     "source_0": "func_3",
-    "seed": "-201262328"
+    "seed": "840816200"
   },
   "func_1": {
     "module": "ModuleGradient",

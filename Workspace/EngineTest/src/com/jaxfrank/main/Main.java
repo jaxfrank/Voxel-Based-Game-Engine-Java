@@ -81,6 +81,7 @@ public class Main extends MainComponent{
 		Main.WIDTH = 1280;
 		Main.HEIGHT = 720;
 		Main.TITLE = "3D Game!";
+		Main.FRAME_CAP = 60.0;
 		Window.createWindow(WIDTH, HEIGHT, TITLE, false);
 		Window.setResizable(true);
 		Display.getDesktopDisplayMode();

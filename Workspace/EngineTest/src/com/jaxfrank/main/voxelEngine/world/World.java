@@ -1,7 +1,6 @@
 package com.jaxfrank.main.voxelEngine.world;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,50 +16,58 @@ public class World {
 	private static World instance;
 	
 	public ConcurrentHashMap<Vector3i, Chunk> chunks = new ConcurrentHashMap<>();
-	public ArrayList<Vector3i> loadedChunks = new ArrayList<>();
+	//public ArrayList<Vector3i> loadedChunks = new ArrayList<>();
+	public HashSet<Vector3i> loadedChunks = new HashSet<>();
 	private int seed;
 	
 	Random rand;
-	public int loadedChunkRadius = 5;
+	public int loadedChunkRadius = 7;
 	
 	private WorldGenerator generator;
 	
 	public World(int seed){
 		this.seed = seed;
 		rand = new Random(seed);
-		ConcurrentHashMap<Integer, Integer> a = new ConcurrentHashMap<>(11*11*11*5, 0.75f, 8);
+		//chunks = new ConcurrentHashMap<Vector3i, Chunk>(loadedChunkRadius*loadedChunkRadius*loadedChunkRadius*20);
 	}
 	
 	public World(String seed){
 		this.seed = seed.hashCode();
 		rand = new Random(this.seed);
+		//chunks = new ConcurrentHashMap<Vector3i, Chunk>(loadedChunkRadius*loadedChunkRadius*loadedChunkRadius*20);
 	}
 	
 	public void update(Vector3f playerPos){
 		//System.out.println("Count of chunks " + chunks.size());
 		loadedChunks.clear();
-		//boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
+		boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
 		Vector3i chunkPos = new Vector3i(0,0,0);
 		for(int i = -loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i < loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i++){
 			for(int j = -loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j < loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j++){
 				for(int k = -loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k < loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k++){
 					chunkPos = new Vector3i(i,j,k);
 					loadChunk(chunkPos);
-					//if(rebuild && chunks.containsKey(chunkPos))
-					//	chunks.get(chunkPos).rebuild();
+					Chunk c = chunks.get(chunkPos);
+					if(rebuild && c != null)
+						chunks.get(chunkPos).rebuild();
 				}
 			}
 		}
 		getGenerator().update();
 	}
 	
-	private HashMap<Vector3i, Object> generated = new HashMap<>();
+	private HashSet<Vector3i> generated = new HashSet<Vector3i>();
 	public void loadChunk(Vector3i location){
-		if(!chunks.containsKey(location) && !generated.containsKey(location)) {
-			generated.put(location, new Object());
-			getGenerator().chunksToGenerate.offer(location);
+		Chunk c = chunks.get(location);
+		if(c != null) {
+			if(c.isGenerated()) {
+				loadedChunks.add(location);
+			}
 		} else {
-			loadedChunks.add(location);
+			if(!generated.contains(location)) {
+				generated.add(location);
+				getGenerator().chunksToGenerate.offer(location);
+			}
 		}
 	}
 	
