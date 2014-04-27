@@ -21,7 +21,7 @@ public class World {
 	private int seed;
 	
 	Random rand;
-	public int loadedChunkRadius = 7;
+	public int loadedChunkRadius = 9;
 	
 	private WorldGenerator generator;
 	
@@ -38,7 +38,6 @@ public class World {
 	}
 	
 	public void update(Vector3f playerPos){
-		//System.out.println("Count of chunks " + chunks.size());
 		loadedChunks.clear();
 		boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
 		Vector3i chunkPos = new Vector3i(0,0,0);
@@ -72,7 +71,7 @@ public class World {
 	}
 	
 	public Block getBlock(Vector3i chunkPos, Vector3i pos){
-		return chunks.get(chunkPos).getBlock(pos);
+		return Block.blocks.get(chunks.get(chunkPos).getBlockIDAt(pos));
 	}
 	
 	public static int seedStringToInt(String seed){

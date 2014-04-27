@@ -36,7 +36,7 @@ public class WorldRenderer implements ThreadCompleteListener{
 	public ConcurrentLinkedDeque<Vector3i> chunksToRebuild = new ConcurrentLinkedDeque<>();
 	
 	private int meshBuilders = 0;
-	private static final int numCores = Runtime.getRuntime().availableProcessors() / 2  + 1;
+	private static final int numCores = Runtime.getRuntime().availableProcessors();
 	
 	private Vector3f cameraPos;
 	private Vector3f cameraForward;
@@ -90,39 +90,19 @@ public class WorldRenderer implements ThreadCompleteListener{
 					chunksToRender.add(loc);
 			}
 		}
-		/*
-		//Vector3i[] loadedChunkKeys = world.getLoadedChunkKeys();
-		for(int i = 0; i < loadedChunkKeys.length; i++){
-			Vector3i loc = loadedChunkKeys[i];
-			Chunk c = world.chunks.get(loc);
-			if(!chunkRenderers.containsKey(loc)){
-				if(shouldRender(loc)) {
-//					Chunk c = world.chunks.get(loc);
-					chunkRenderers.put(loc, new ChunkRenderer(world, c, loc));
-					chunksToRebuild.add(loc);
-					chunksToRender.add(loc);
-					//chunkRenderers.get(loc).rebuild();
-					world.chunks.get(loc).rebuilt();
-				}
-			} else {
-				if(c.needsRebuild())
-					chunksToRebuild.offer(loc);
-				if(shouldRender(c))
-					chunksToRender.add(loc);
-			}
-		}
-		*/
 	}
 	
 	private void rebuildChunks() {
+		if(Thread.activeCount() <= 1 && meshBuilders > 0)
+			meshBuilders = 0;
 		int numChunksToRebuild = chunksToRebuild.size();
 		if(numChunksToRebuild > 0 ) {
-			if(meshBuilders == 0) {
+			int numThreadsToStart = ((numChunksToRebuild / 10.0f) != 0 ? (numChunksToRebuild / 10) + 1 : 0) - meshBuilders;
+			if(numThreadsToStart > 0) {
 				//System.out.println("Chunks to generate " + numChunksToGenerate + " numGenerators " + numGenerators);
-				//int numThreadsToStart = ((numChunksToRebuild / 10.0f) != 0 ? (numChunksToRebuild / 10) + 1 : (numChunksToRebuild / 10));
-				int numThreadsToStart = 3;
-				//if(numThreadsToStart >= numCores)
-				//	numThreadsToStart = numCores - 1;
+				//int numThreadsToStart = 3;
+				if(numThreadsToStart >= numCores)
+					numThreadsToStart = numCores - 1;
 				for(int i = 0; i < numThreadsToStart; i++) {
 					MeshBuilder thread = new MeshBuilder();
 					thread.addListener(this);

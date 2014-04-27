@@ -13,17 +13,17 @@ import com.jaxfrank.main.voxelEngine.world.World;
 public class PlantRenderer extends BlockRenderer {
 
 	@Override
-	public void generate(ArrayList<Vertex> vertices, ArrayList<Integer> indices, World world, Chunk chunk, int x, int y, int z) {
+	public void generate(ArrayList<Vertex> vertices, ArrayList<Integer> indices, World world, Chunk chunk, Vector3i blockPos) {
 		float[] texCoords;
 		int startPos = 0;
 		
 		startPos = vertices.size();
-		texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, world.getBlock(chunk.getPos(), new Vector3i(x,y,z)).getTextureIndices()[0]);
+		texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, world.getBlock(chunk.getPos(), blockPos).getTextureIndices()[0]);
 		
-		vertices.add(new Vertex( new Vector3f(-0.5f + x, -0.5f + y, -0.5f + z), new Vector2f(texCoords[0], texCoords[2]))); //Bottom 
-		vertices.add(new Vertex( new Vector3f(-0.5f + x, +0.5f + y, -0.5f + z), new Vector2f(texCoords[0], texCoords[3]))); //Bottom
-		vertices.add(new Vertex( new Vector3f(+0.5f + x, +0.5f + y, +0.5f + z),	new Vector2f(texCoords[1], texCoords[3]))); //Bottom
-		vertices.add(new Vertex( new Vector3f(+0.5f + x, -0.5f + y, +0.5f + z), new Vector2f(texCoords[1], texCoords[2]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(-0.5f + blockPos.getX(), -0.5f + blockPos.getY(), -0.5f + blockPos.getZ()), new Vector2f(texCoords[0], texCoords[2]))); //Bottom 
+		vertices.add(new Vertex( new Vector3f(-0.5f + blockPos.getX(), +0.5f + blockPos.getY(), -0.5f + blockPos.getZ()), new Vector2f(texCoords[0], texCoords[3]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(+0.5f + blockPos.getX(), +0.5f + blockPos.getY(), +0.5f + blockPos.getZ()),	new Vector2f(texCoords[1], texCoords[3]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(+0.5f + blockPos.getX(), -0.5f + blockPos.getY(), +0.5f + blockPos.getZ()), new Vector2f(texCoords[1], texCoords[2]))); //Bottom
 		
 		indices.add(1 + startPos); indices.add(3 + startPos); indices.add(0 + startPos); //Bottom
 		indices.add(1 + startPos); indices.add(2 + startPos); indices.add(3 + startPos); // 3 2 1 2 3 4
@@ -32,12 +32,12 @@ public class PlantRenderer extends BlockRenderer {
 		indices.add(2 + startPos); indices.add(1 + startPos); indices.add(3 + startPos); // 3 2 1 2 3 4
 		
 		startPos = vertices.size();
-		texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, world.getBlock(chunk.getPos(), new Vector3i(x,y,z)).getTextureIndices()[0]);
+		texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, world.getBlock(chunk.getPos(), blockPos).getTextureIndices()[0]);
 		
-		vertices.add(new Vertex( new Vector3f(-0.5f + x, -0.5f + y, +0.5f + z), new Vector2f(texCoords[0], texCoords[2]))); //Bottom 
-		vertices.add(new Vertex( new Vector3f(-0.5f + x, +0.5f + y, +0.5f + z), new Vector2f(texCoords[0], texCoords[3]))); //Bottom
-		vertices.add(new Vertex( new Vector3f(+0.5f + x, +0.5f + y, -0.5f + z),	new Vector2f(texCoords[1], texCoords[3]))); //Bottom
-		vertices.add(new Vertex( new Vector3f(+0.5f + x, -0.5f + y, -0.5f + z), new Vector2f(texCoords[1], texCoords[2]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(-0.5f + blockPos.getX(), -0.5f + blockPos.getY(), +0.5f + blockPos.getY()), new Vector2f(texCoords[0], texCoords[2]))); //Bottom 
+		vertices.add(new Vertex( new Vector3f(-0.5f + blockPos.getX(), +0.5f + blockPos.getY(), +0.5f + blockPos.getY()), new Vector2f(texCoords[0], texCoords[3]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(+0.5f + blockPos.getX(), +0.5f + blockPos.getY(), -0.5f + blockPos.getY()),	new Vector2f(texCoords[1], texCoords[3]))); //Bottom
+		vertices.add(new Vertex( new Vector3f(+0.5f + blockPos.getX(), -0.5f + blockPos.getY(), -0.5f + blockPos.getY()), new Vector2f(texCoords[1], texCoords[2]))); //Bottom
 		
 		indices.add(1 + startPos); indices.add(3 + startPos); indices.add(0 + startPos); //Bottom
 		indices.add(1 + startPos); indices.add(2 + startPos); indices.add(3 + startPos); // 3 2 1 2 3 4

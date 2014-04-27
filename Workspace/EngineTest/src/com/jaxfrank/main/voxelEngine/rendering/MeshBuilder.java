@@ -22,10 +22,9 @@ public class MeshBuilder extends NotifyingThread {
 					break;
 				chunkPos = Main.worldRenderer.chunksToRebuild.poll();
 			}
-			Chunk c;
-			c = World.getInstance().chunks.get(chunkPos);
+			
 			World.getInstance().chunks.get(chunkPos).rebuilt();
-			generateMesh(c, chunkPos);
+			generateMesh(World.getInstance().chunks.get(chunkPos), chunkPos);
 		}
 	}
 	
@@ -36,19 +35,20 @@ public class MeshBuilder extends NotifyingThread {
 		ArrayList<Vertex> transparentVertices = new ArrayList<Vertex>();
 		ArrayList<Integer> transparentIndices = new ArrayList<Integer>();
 		
-		for(int i = 0; i < chunk.getBlocks().length; i++){
-			for(int j = 0; j < chunk.getBlocks()[0].length; j++){
-				for(int k = 0; k < chunk.getBlocks()[0][0].length; k++){
-					if(!chunk.getBlocks()[i][j][k].isRendered()) continue; // if the current block doesn't have a texture then don't bother trying to calculate the vertices
+		for(int i = 0; i < Chunk.getWidth(); i++){
+			for(int j = 0; j < Chunk.getHeight(); j++){
+				for(int k = 0; k < Chunk.getDepth(); k++){
+					Vector3i blockPos = new Vector3i(i,j,k);
+					if(!chunk.getBlockNoBoundsCheck(blockPos).isRendered()) continue; // if the current block doesn't have a texture then don't bother trying to calculate the vertices
 
-					if(WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()) != null) {
-						if(chunk.getBlocks()[i][j][k].isOpaqueCube())
-							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()).generate(vertices, indices, World.getInstance(), chunk, i, j, k);
+					if(WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()) != null) {
+						if(chunk.getBlockNoBoundsCheck(blockPos).isOpaqueCube())
+							WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()).generate(vertices, indices, World.getInstance(), chunk, blockPos);
 						else {
-							WorldRenderer.renderers.get(chunk.getBlocks()[i][j][k].getRendererID()).generate(transparentVertices, transparentIndices, World.getInstance(), chunk, i, j , k);
+							WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()).generate(transparentVertices, transparentIndices, World.getInstance(), chunk, blockPos);
 						}
 					} else {
-						System.err.println("Trying to use invalid block renderer: " + chunk.getBlocks()[i][j][k].getRendererID());
+						System.err.println("Trying to use invalid block renderer: " + chunk.getBlockNoBoundsCheck(blockPos).getRendererID());
 						new Exception().printStackTrace();
 						System.exit(-1);
 					}

@@ -4,31 +4,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Block {
 	
-	public static ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
+	public static ConcurrentHashMap<Short, Block> blocks = new ConcurrentHashMap<>();
 	
-	private int blockID;
+	private short blockID;
 	private int[] textureIndices;
 	
 	private boolean isOpaqueCube = true;
 	private boolean rendered = true;
 	private int rendererID = 0;
 	
-	public Block(int id, int textureIndex){
+	public Block(short id, int textureIndex){
 		this(id, new int[]{textureIndex,textureIndex,textureIndex,textureIndex,textureIndex,textureIndex});
 	}
 	
-	public Block(int id, int[] textureIndices){
+	public Block(short id, int[] textureIndices){
 		if(blocks.containsKey(id)){
 			System.err.println("Block already resgistered with the block ID: \"" + id + "\". Skipping.");
-			new Exception().printStackTrace();
-			System.exit(-1);
 		} 
 		this.blockID = id;
 		this.textureIndices = textureIndices;
 		blocks.put(id, this);
 	}
 	
-	public int getBlockID(){
+	public short getBlockID(){
 		return blockID;
 	}
 	
@@ -74,10 +72,6 @@ public class Block {
 	
 	public boolean isRendered(){
 		return this.rendered;
-	}
-	
-	public static Block getBlock(int ID){
-		return blocks.get(ID);
 	}
 	
 	public enum Side{

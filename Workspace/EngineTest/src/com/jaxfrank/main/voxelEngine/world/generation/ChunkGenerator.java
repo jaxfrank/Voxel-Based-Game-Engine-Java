@@ -2,6 +2,7 @@ package com.jaxfrank.main.voxelEngine.world.generation;
 
 import com.base.engine.math.Vector3i;
 import com.base.engine.util.multiThread.NotifyingThread;
+import com.jaxfrank.main.Main;
 import com.jaxfrank.main.voxelEngine.block.Block;
 import com.jaxfrank.main.voxelEngine.block.Block.Side;
 import com.jaxfrank.main.voxelEngine.world.Chunk;
@@ -17,9 +18,7 @@ public class ChunkGenerator extends NotifyingThread{
 	
 	@Override
 	public void execute() {
-		synchronized (World.getInstance().getGenerator().getJoise()) {
-			joise = new Joise(World.getInstance().getGenerator().getJoise().getModuleMap());
-		}
+		joise = new Joise(World.getInstance().getGenerator().getJoise().getModuleMap());
 		
 		while(true) {
 			if(World.getInstance().getGenerator().chunksToGenerate.size() == 0 )
@@ -34,21 +33,31 @@ public class ChunkGenerator extends NotifyingThread{
 	
 	private Chunk getChunk() {
 		chunk = new Chunk(currentChunkPos);
-		Vector3i blockPos = new Vector3i(0, 0, 0);
+		Vector3i blockPos;
 		for(int i = 0; i < Chunk.getSize().getX(); i++) {
 			for(int k = 0; k < Chunk.getSize().getZ(); k++) {
 				for(int j = 0; j < Chunk.getSize().getY(); j++) {
-					blockPos.setX(i);
-					blockPos.setY(j);
-					blockPos.setZ(k);
+					blockPos = new Vector3i(i,j,k);
 					
-					chunk.setBlock(blockPos, getBlockID(blockPos));
-					chunk.setSideVisiblity(blockPos, Side.BACK,   isSideVisible(blockPos, Side.BACK));
-					chunk.setSideVisiblity(blockPos, Side.FRONT,  isSideVisible(blockPos, Side.FRONT));
-					chunk.setSideVisiblity(blockPos, Side.LEFT,   isSideVisible(blockPos, Side.LEFT));
-					chunk.setSideVisiblity(blockPos, Side.RIGHT,  isSideVisible(blockPos, Side.RIGHT));
-					chunk.setSideVisiblity(blockPos, Side.TOP,    isSideVisible(blockPos, Side.TOP));
-					chunk.setSideVisiblity(blockPos, Side.BOTTOM, isSideVisible(blockPos, Side.BOTTOM));
+					short thisBlockID = getBlockID(blockPos);
+					Block thisBlock = Block.blocks.get(thisBlockID);
+					boolean thisBlockIsTransparent = thisBlock.isTransparent();
+					chunk.setBlock(blockPos, thisBlockID);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(0,0,-1)), Side.BACK,   thisBlockIsTransparent);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(0,0,1)), Side.FRONT,  thisBlockIsTransparent);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(-1,0,0)), Side.RIGHT,   thisBlockIsTransparent);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(1,0,0)), Side.LEFT,  thisBlockIsTransparent);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(0,-1,0)), Side.TOP,    thisBlockIsTransparent);
+					chunk.setSideVisiblity(blockPos.add(new Vector3i(0,1,0)), Side.BOTTOM, thisBlockIsTransparent);
+					
+					if(i == 0) chunk.setSideVisiblity(blockPos, Side.LEFT, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(-1,0,0)))).isTransparent());
+					else if(i == Chunk.getWidth()-1) chunk.setSideVisiblity(blockPos, Side.RIGHT, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(1,0,0)))).isTransparent());
+					
+					if(j == 0) chunk.setSideVisiblity(blockPos, Side.BOTTOM, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(0,-1,0)))).isTransparent());
+					else if(j == Chunk.getHeight()-1) chunk.setSideVisiblity(blockPos, Side.TOP, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(0,1,0)))).isTransparent());
+					
+					if(k == 0) chunk.setSideVisiblity(blockPos, Side.FRONT, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(0,0,-1)))).isTransparent());
+					else if(k == Chunk.getDepth()-1) chunk.setSideVisiblity(blockPos, Side.BACK, Block.blocks.get(getBlockID(blockPos.add(new Vector3i(0,0,1)))).isTransparent());
 				}
 			}
 		}
@@ -67,45 +76,12 @@ public class ChunkGenerator extends NotifyingThread{
 		return (float)value;
 	}
 	
-	private boolean isSideVisible(Vector3i blockPos, Side side){
-		Vector3i checkingBlockPos = null;
-		switch(side) {
-		case BACK:
-			checkingBlockPos = blockPos.add(new Vector3i(0, 0, 1));
-			break;
-		case FRONT:
-			checkingBlockPos = blockPos.add(new Vector3i(0, 0, -1));
-			break;
-		case LEFT:
-			checkingBlockPos = blockPos.add(new Vector3i(-1, 0, 0));
-			break;
-		case RIGHT:
-			checkingBlockPos = blockPos.add(new Vector3i(1, 0, 0));
-			break;
-		case TOP:
-			checkingBlockPos = blockPos.add(new Vector3i(0, 1, 0));
-			break;
-		case BOTTOM:
-			checkingBlockPos = blockPos.add(new Vector3i(0, -1, 0));
-			break;
-		}
-		
-		Block block = chunk.getBlock(checkingBlockPos);
-		if(block == null) {
-			return Block.blocks.get(getBlockID(checkingBlockPos)).isTransparent();
-		} else {
-			return block.isTransparent();
-		}
-	}
-	
-	private int getBlockID(Vector3i blockPos) {
-		int block = 0;
+	private short getBlockID(Vector3i blockPos) {
+		short block = 0;
 		
 		float value = getValue(blockPos);
 		if(value > 0)
-			block = 4;
-		else 
-			block = 0;
+			block = Main.grass.getBlockID();
 		
 		return block;
 	}

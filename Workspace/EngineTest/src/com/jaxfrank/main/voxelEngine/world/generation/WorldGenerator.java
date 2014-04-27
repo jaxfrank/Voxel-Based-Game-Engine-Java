@@ -25,8 +25,6 @@ import com.sudoplay.joise.module.ModuleTranslateDomain;
 
 public class WorldGenerator implements ThreadCompleteListener {
 	
-	private static WorldGenerator instance;
-	
 	private int seed;
 	
 	private HashMap<Vector3i, Double> map = new HashMap<>();
@@ -44,15 +42,14 @@ public class WorldGenerator implements ThreadCompleteListener {
 	}
 	
 	public void update() {
-		//System.out.println("Updating!");
+		if(Thread.activeCount() <= 1 && numGenerators > 0)
+			numGenerators = 0;
 		int numChunksToGenerate = chunksToGenerate.size();
 		if(numChunksToGenerate > 0 ) {
-			//System.out.println("Chunks to generate " + numChunksToGenerate + " numGenerators " + numGenerators);
-			if(numGenerators == 0) {
-				int numThreadsToStart = ((numChunksToGenerate / 10.0f) != 0 ? (numChunksToGenerate / 10) + 1 : (numChunksToGenerate / 10));
-				//int numThreadsToStart = 3;
-				if(numThreadsToStart >= numCores)
-					numThreadsToStart = numCores - 1;
+			int numThreadsToStart = (numChunksToGenerate / 10);
+			if(numThreadsToStart + numGenerators >= numCores)
+				numThreadsToStart = numCores - numGenerators - 1;
+			if(numThreadsToStart > 0) {
 				for(int i = 0; i < numThreadsToStart; i++) {
 					ChunkGenerator thread = new ChunkGenerator();
 					thread.addListener(this);

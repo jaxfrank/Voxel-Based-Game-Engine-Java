@@ -14,16 +14,17 @@ import com.jaxfrank.main.voxelEngine.world.World;
 public class StandardBlockRenderer extends BlockRenderer {
 	
 	@Override
-	public void generate(ArrayList<Vertex> vertices, ArrayList<Integer> indices, World world, Chunk chunk, int x, int y, int z) {
+	public void generate(ArrayList<Vertex> vertices, ArrayList<Integer> indices, World world, Chunk chunk, Vector3i blockPos) {
+		if(!Chunk.posInBounds(blockPos)) return;
 		float[] texCoords;
 		int startPos = vertices.size();
-		int drawX = x + chunk.getPos().getX() * Chunk.getSize().getX();
-		int drawY = y + chunk.getPos().getY() * Chunk.getSize().getY();
-		int drawZ = z + chunk.getPos().getZ() * Chunk.getSize().getZ();
-		Vector3i blockPos = new Vector3i(x, y, z);
+		int drawX = blockPos.getX() + chunk.getPos().getX() * Chunk.getWidth();
+		int drawY = blockPos.getY() + chunk.getPos().getY() * Chunk.getHeight();
+		int drawZ = blockPos.getZ() + chunk.getPos().getZ() * Chunk.getDepth();
+		int[] textureIndices = chunk.getBlockNoBoundsCheck(blockPos).getTextureIndices();
 		if(chunk.isSideVisible(blockPos, Side.BOTTOM)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[0]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[0]);
 			
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, -0.5f + drawZ), new Vector2f(texCoords[0], texCoords[2]))); //Bottom 
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[1], texCoords[2]))); //Bottom
@@ -36,7 +37,7 @@ public class StandardBlockRenderer extends BlockRenderer {
 		}
 		if(chunk.isSideVisible(blockPos, Side.LEFT)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[1]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[1]);
 			
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, -0.5f + drawZ), new Vector2f(texCoords[0], texCoords[2]))); //Left 
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[1], texCoords[2]))); //Left 
@@ -48,7 +49,7 @@ public class StandardBlockRenderer extends BlockRenderer {
 		}
 		if(chunk.isSideVisible(blockPos, Side.FRONT)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[2]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[2]);
 			
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, -0.5f + drawZ), new Vector2f(texCoords[0], texCoords[2]))); //Front 
 			vertices.add(new Vertex( new Vector3f(+0.5f + drawX, -0.5f + drawY, -0.5f + drawZ),	new Vector2f(texCoords[1], texCoords[2]))); //Front 
@@ -60,7 +61,7 @@ public class StandardBlockRenderer extends BlockRenderer {
 		}
 		if(chunk.isSideVisible(blockPos, Side.BACK)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[5]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[5]);
 			
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, -0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[0], texCoords[2]))); //Back
 			vertices.add(new Vertex( new Vector3f(+0.5f + drawX, -0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[1], texCoords[2]))); //Back 
@@ -73,7 +74,7 @@ public class StandardBlockRenderer extends BlockRenderer {
 		}
 		if(chunk.isSideVisible(blockPos, Side.RIGHT)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[4]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[4]);
 			
 			vertices.add(new Vertex( new Vector3f(+0.5f + drawX, -0.5f + drawY, -0.5f + drawZ),	new Vector2f(texCoords[0], texCoords[2]))); //Right 
 			vertices.add(new Vertex( new Vector3f(+0.5f + drawX, -0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[1], texCoords[2]))); //Right 
@@ -85,7 +86,7 @@ public class StandardBlockRenderer extends BlockRenderer {
 		}
 		if(chunk.isSideVisible(blockPos, Side.TOP)) {
 			startPos = vertices.size();
-			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, chunk.getBlock(new Vector3i(x,y,z)).getTextureIndices()[3]);
+			texCoords = TextureUtil.calcTexCoord(NUM_TEXTURES, NUM_TEXTURES_EXP, textureIndices[3]);
 			
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, +0.5f + drawY, -0.5f + drawZ), new Vector2f(texCoords[0], texCoords[2]))); //Top   
 			vertices.add(new Vertex( new Vector3f(-0.5f + drawX, +0.5f + drawY, +0.5f + drawZ), new Vector2f(texCoords[0], texCoords[3]))); //Top   

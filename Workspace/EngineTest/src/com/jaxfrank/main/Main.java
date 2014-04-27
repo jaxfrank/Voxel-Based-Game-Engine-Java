@@ -43,17 +43,17 @@ public class Main extends MainComponent{
 	//public static int PLANT_RENDERER_ID;
 	
 	//bottom side side top side side
-	public static final Block air = new Block(0, -1).setTransparent().setRendered(false).setRendererID(-1);
-	public static final Block stone = new Block(1, 2);
-	public static final Block dirt = new Block(2, 3);
-	public static final Block grass = new Block(3, new int[]{3, 4, 4, 1, 4, 4});
-	public static final Block sand = new Block(4, 19);
-	public static final Block log = new Block(5, new int[]{22, 21, 21, 22, 21, 21});
-	public static final Block bedRock = new Block(6, 18);
+	public static final Block air = new Block((short)0, -1).setTransparent().setRendered(false).setRendererID(-1);
+	public static final Block stone = new Block((short)1, 2);
+	public static final Block dirt = new Block((short)2, 3);
+	public static final Block grass = new Block((short)3, new int[]{3, 4, 4, 1, 4, 4});
+	public static final Block sand = new Block((short)4, 19);
+	public static final Block log = new Block((short)5, new int[]{22, 21, 21, 22, 21, 21});
+	public static final Block bedRock = new Block((short)6, 18);
 	
 	//public static final Block enchantingTable = new Block("table", new int[]{184, 183, 183, 167, 183, 183}).setTransparent().setRendererID(1);
 	//public static final Block flower = new Block("flower", 13).setTransparent().setRendererID(2);
-	public static final Block glass = new Block(7, 50).setTransparent();
+	public static final Block glass = new Block((short)7, 50).setTransparent();
 	
 	private Shader shader;
 	private Transform transform;
@@ -135,7 +135,7 @@ public class Main extends MainComponent{
 	protected void input(){
 		camera.input();
 		
-		float movAmt = (float)(13 * Time.getDelta());
+		float movAmt = (float)(100 * Time.getDelta());//13
 		
 		if(Input.getKey(Input.KEY_ESCAPE))
 		{

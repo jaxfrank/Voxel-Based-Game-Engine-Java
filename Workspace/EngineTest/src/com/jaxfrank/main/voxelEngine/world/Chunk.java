@@ -6,9 +6,9 @@ import com.jaxfrank.main.voxelEngine.block.Block.Side;
 
 public class Chunk {
 
-	private Block[][][] blocks;
+	private short[][][] blocks;
 	private byte[][][] visibleSides;
-	private static Vector3i size = new Vector3i(16,16,16);
+	private static Vector3i size = new Vector3i(32,32,32);
 	private Vector3i chunkPos;
 	private int numSolidBlocks = 0;
 	private boolean shouldRebuild = true;
@@ -16,7 +16,7 @@ public class Chunk {
 	
 	public Chunk(Vector3i position){
 		chunkPos = position;
-		blocks = new Block[size.getX()][size.getY()][size.getZ()];
+		blocks = new short[size.getX()][size.getY()][size.getZ()];
 		visibleSides = new byte[size.getX()][size.getY()][size.getZ()];
 		for(int i = 0; i < size.getX(); i++) {
 			for(int j = 0; j < size.getY(); j++) {
@@ -27,22 +27,33 @@ public class Chunk {
 		}
 	}
 	
-	public Block getBlock(Vector3i pos){
-		if(pos.getX() < 0 || pos.getX() >= size.getX())
-			return null;
-		if(pos.getY() < 0 || pos.getY() >= size.getY())
-			return null;
-		if(pos.getZ() < 0 || pos.getZ() >= size.getZ())
-			return null;
+	public short getBlockIDAt(Vector3i pos){
+		if(!posInBounds(pos)) return -1;
+		
 		return blocks[pos.getX()][pos.getY()][pos.getZ()];
+	}
+	
+	public Block getBlockNoBoundsCheck(Vector3i pos) {
+		return Block.blocks.get(blocks[pos.getX()][pos.getY()][pos.getZ()]);
 	}
 	
 	public static Vector3i getSize(){
 		return size;
 	}
 	
+	public static int getWidth() {
+		return size.getX();
+	}
+	
+	public static int getHeight() {
+		return size.getY();
+	}
+	
+	public static int getDepth() {
+		return size.getZ();
+	}
+	
 	public void generate(int seed){
-		//WorldGenerator generator = new WorldGenerator(seed, 0, 30, 1);
 		Vector3i block = new Vector3i(0, 0, 0);
 		for(int i = 0; i < size.getX(); i++) {
 			for(int k = 0; k < size.getZ(); k++) {
@@ -50,77 +61,74 @@ public class Chunk {
 					block.setX(i);
 					block.setY(j);
 					block.setZ(k);
-					float value = (World.getInstance().getGenerator().getValue(new Vector3i(chunkPos.getX(), chunkPos.getY(), chunkPos.getZ()), block, 32));
-					/*
-					int y = j + (chunkPos.getY() * size.getY());
-					if(y < (int)value - 4)
-						setBlock(new Vector3i(i, j, k), "stone");
-					else if(y < (int)value)
-						setBlock(new Vector3i(i, j, k), "dirt");
-					else if(y == (int)value)
-						setBlock(new Vector3i(i, j, k), "grass");
-					else
-						setBlock(new Vector3i(i, j, k), "air");
-					 */
+					float value = (World.getInstance().getGenerator().getValue(chunkPos, block, 32));
 					if(value > 0)
-						setBlock(block, 1);
+						setBlock(block, (short)1);
 					else 
-						setBlock(block, 3);
+						setBlock(block, (short)3);
 				}
 			}
 		}
 	}
 	
-	public void setBlock(Vector3i loc, int type) {
+	public void setBlock(Vector3i loc, short blockID) {
+		if(!posInBounds(loc)) return;
 		int x = loc.getX();
 		int y = loc.getY();
 		int z = loc.getZ();
 		
-		if(blocks[x][y][z] != null) {
-			if(blocks[x][y][z].getBlockID() != type) {
-				if(blocks[x][y][z].getBlockID() == 0) {
+		//if(Block.blocks.get(blocks[x][y][z]) != null) {
+			if(blocks[x][y][z] != blockID) {
+				if(blocks[x][y][z] == 0) {
 					numSolidBlocks++;
-				} else if(type == 0)
+				} else if(blockID == 0)
 					numSolidBlocks--;
-				blocks[x][y][z] = Block.getBlock(type);
+				blocks[x][y][z] = blockID;
 				rebuild();
 			}
-		} else {
-			if(type != 0)
-				numSolidBlocks++;
-			blocks[x][y][z] = Block.getBlock(type);
-			rebuild();
-		}
+		//} else {
+		//	if(blockID != 0)
+		//		numSolidBlocks++;
+		//	blocks[x][y][z] = blockID;
+		//	rebuild();
+		//}
 	}
 	
-	public void setSideVisiblity(Vector3i block, Side side, boolean visible) {
+	public void setSideVisiblity(Vector3i block, Side side, boolean invisible) {
+		if(!posInBounds(block)) return;
 		//Order of bytes
 		//Top, bottom, left, right, front, back
 		//0 is invisible 1 is visible
-		byte initial = visibleSides[block.getX()][block.getY()][block.getZ()];
-		byte current = (byte)((byte)(initial & (1 << (byte)side.ordinal())) >> side.ordinal());
-		boolean wasVisible = current == 1;
-		if(wasVisible && visible)
+		boolean wasVisible = isSideVisible(block, side);
+		if(wasVisible && invisible)
 			return;
-		if(!wasVisible && !visible)
+		if(!wasVisible && !invisible)
 			return;
-		if(wasVisible && !visible){
+		if(wasVisible && !invisible){
 			visibleSides[block.getX()][block.getY()][block.getZ()] &= ~(1 << side.ordinal());
 			return;
 		}
-		if(!wasVisible && visible) {
+		if(!wasVisible && invisible) {
 			visibleSides[block.getX()][block.getY()][block.getZ()] |= (1 << side.ordinal());
 			return;
 		}
 	}
 	
 	public boolean isSideVisible(Vector3i block, Side side) {
-		byte initial = visibleSides[block.getX()][block.getY()][block.getZ()];
-		byte current = (byte)((byte)(initial & (1 << (byte)side.ordinal())) >> side.ordinal());
-		return current == 1;
+		return ((visibleSides[block.getX()][block.getY()][block.getZ()] & (1 << side.ordinal())) >> side.ordinal()) == 1;
 	}
 	
-	public Block[][][] getBlocks(){
+	public static boolean posInBounds(Vector3i location) {
+		if(location.getX() < 0) return false;
+		if(location.getY() < 0) return false;
+		if(location.getZ() < 0) return false;
+		if(location.getX() >= size.getX()) return false;
+		if(location.getY() >= size.getY()) return false;
+		if(location.getZ() >= size.getZ()) return false;
+		return true;
+	}
+	
+	public short[][][] getBlockIDs(){
 		return this.blocks;
 	}
 	
