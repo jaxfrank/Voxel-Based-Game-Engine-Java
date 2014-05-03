@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -20,7 +19,6 @@ import com.sudoplay.joise.module.ModuleBasisFunction.InterpolationType;
 import com.sudoplay.joise.module.ModuleFractal;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import com.sudoplay.joise.module.ModuleGradient;
-import com.sudoplay.joise.module.ModuleSelect;
 import com.sudoplay.joise.module.ModuleTranslateDomain;
 
 public class WorldGenerator implements ThreadCompleteListener {
@@ -96,19 +94,23 @@ public class WorldGenerator implements ThreadCompleteListener {
 		groundShape.setFrequency(0.75);
 		groundShape.setNumOctaves(1);
 		groundShape.setSeed(seed);
+		groundShape.resetAllSources();
 		
 		ModuleTranslateDomain translate = new ModuleTranslateDomain();
 		translate.setAxisYSource(groundShape);
 		translate.setSource(groundGradient);
 		
+		/*
 		ModuleSelect select = new ModuleSelect();
 		select.setControlSource(translate);
-		select.setLowSource(1);
-		select.setHighSource(-1);
+		select.setHighSource(1);//Air
+		select.setLowSource(translate); //GrassStoneDirt
 		select.setThreshold(0.5);
 		select.setFalloff(0);
+		*/
 		
-		joise = new Joise(select);
+		joise = new Joise(translate);
+		/*
 		JoiseJSONConverter converter = new JoiseJSONConverter();
 		ModuleMap map = new ModuleMap();
 		converter.toJson(map);
@@ -119,7 +121,7 @@ public class WorldGenerator implements ThreadCompleteListener {
 			stream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 	}
 	
@@ -134,11 +136,11 @@ public class WorldGenerator implements ThreadCompleteListener {
 		}
 	}
 	
-	Object baton = new Object();
+	//Object baton = new Object();
 	public Joise getJoise() {
-		synchronized(baton) {
+		//synchronized(baton) {
 			return joise;
-		}
+		//}
 	}
 	
 	public int getSeed() {

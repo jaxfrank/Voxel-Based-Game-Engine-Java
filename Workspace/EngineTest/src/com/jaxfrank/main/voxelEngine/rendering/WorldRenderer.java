@@ -45,6 +45,7 @@ public class WorldRenderer implements ThreadCompleteListener{
 	private int renderDistance = 100;
 	
 	public static final int STANDARD_BLOCK_RENDERER_ID = 0;
+	private final int MAX_CHUNK_MESH_SWAPS_PF = 3;
 	
 	public WorldRenderer(World world){
 		this.world = world;
@@ -65,8 +66,10 @@ public class WorldRenderer implements ThreadCompleteListener{
 	}
 	
 	public void update(){
-		updateRenderers();
+		if(world.loadListChanged())
+			updateRenderers();
 		rebuildChunks();
+		updateChunkMeshes();
 	}
 	
 	private void updateRenderers() {
@@ -99,8 +102,6 @@ public class WorldRenderer implements ThreadCompleteListener{
 		if(numChunksToRebuild > 0 ) {
 			int numThreadsToStart = ((numChunksToRebuild / 10.0f) != 0 ? (numChunksToRebuild / 10) + 1 : 0) - meshBuilders;
 			if(numThreadsToStart > 0) {
-				//System.out.println("Chunks to generate " + numChunksToGenerate + " numGenerators " + numGenerators);
-				//int numThreadsToStart = 3;
 				if(numThreadsToStart >= numCores)
 					numThreadsToStart = numCores - 1;
 				for(int i = 0; i < numThreadsToStart; i++) {
@@ -109,6 +110,19 @@ public class WorldRenderer implements ThreadCompleteListener{
 					new Thread(thread).start();
 					meshBuilders++;
 				}
+			}
+		}
+	}
+	
+	private void updateChunkMeshes() {
+		int numMeshesUpdated = 0;
+		for(Vector3i pos : chunksToRender) {
+			ChunkRenderer renderer = chunkRenderers.get(pos);
+			if(renderer.hasNewData()) {
+				numMeshesUpdated++;
+				renderer.swapMeshData();
+				if(numMeshesUpdated > MAX_CHUNK_MESH_SWAPS_PF)
+					return;
 			}
 		}
 	}

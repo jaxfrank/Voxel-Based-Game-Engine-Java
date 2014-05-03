@@ -37,6 +37,10 @@ public class Chunk {
 		return Block.blocks.get(blocks[pos.getX()][pos.getY()][pos.getZ()]);
 	}
 	
+	public short getBlockIDNoBoundsCheck(int x, int y, int z) {
+		return blocks[x][y][z];
+	}
+	
 	public static Vector3i getSize(){
 		return size;
 	}

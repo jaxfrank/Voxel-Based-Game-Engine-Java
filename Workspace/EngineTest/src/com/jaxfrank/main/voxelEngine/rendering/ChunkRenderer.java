@@ -3,8 +3,6 @@ package com.jaxfrank.main.voxelEngine.rendering;
 import com.base.engine.math.Vector3i;
 import com.base.engine.rendering.Mesh;
 import com.base.engine.rendering.Vertex;
-import com.jaxfrank.main.voxelEngine.world.Chunk;
-import com.jaxfrank.main.voxelEngine.world.World;
 
 public class ChunkRenderer {
 	
@@ -28,11 +26,6 @@ public class ChunkRenderer {
 	}
 	
 	public void render(){
-		if(newData) {
-			chunkMesh = new Mesh(opaqueVerts, opaqueIndices, true);
-			transparentChunkMesh = new Mesh(transparentVerts, transparentIndices, true);
-			newData = false;
-		}
 		if(chunkMesh == null || transparentChunkMesh == null)
 			return;
 		this.chunkMesh.draw();
@@ -58,6 +51,26 @@ public class ChunkRenderer {
 		}
 		chunkMesh = opaqueMesh;
 		transparentChunkMesh = transparentMesh;
+	}
+	
+	public boolean hasNewData() {
+		return newData;
+	}
+	
+	public void swapMeshData() {
+		if(newData) {
+			if(chunkMesh != null)
+				chunkMesh.delete();
+			if(transparentChunkMesh != null)
+				transparentChunkMesh.delete();
+			chunkMesh = new Mesh(opaqueVerts, opaqueIndices, true);
+			transparentChunkMesh = new Mesh(transparentVerts, transparentIndices, true);
+			opaqueVerts = null;//TODO: Check if doing this creates a memory leak
+			opaqueIndices = null;
+			transparentVerts = null;
+			transparentIndices = null;
+			newData = false;
+		}
 	}
 	
 	public void setTempData(Vertex[] opaqueVerts, int[] opaqueIndices, Vertex[] transparentVerts, int[] transparentIndices) {

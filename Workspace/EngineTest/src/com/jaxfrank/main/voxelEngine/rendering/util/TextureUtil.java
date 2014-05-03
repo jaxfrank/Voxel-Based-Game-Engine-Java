@@ -30,4 +30,18 @@ public class TextureUtil {
 		
 		return result;
 	}
+	
+	public static void calcTexCoord(float[] textureCoords, int numTextures, int numTextureExponent, int index){
+		int texCoord = numTextures - index;
+		
+		int texX = texCoord % numTextureExponent;
+		int texY = texCoord / numTextureExponent;
+
+		textureCoords[1] = 1f - (float)texX/(float)16;
+		textureCoords[0] = textureCoords[1] - 1f/(float)16;
+		textureCoords[2] = 1f - (float)texY/(float)16;
+		textureCoords[3] = textureCoords[2] - 1f/(float)16;
+		
+	}
+	
 }

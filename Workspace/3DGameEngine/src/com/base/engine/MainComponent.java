@@ -109,6 +109,7 @@ public class MainComponent
 		
 		cleanUp();
 		cleanUpWindow();
+		System.exit(0); //Needed so that all running threads will terminate execution
 	}
 	
 	protected void preInit(){

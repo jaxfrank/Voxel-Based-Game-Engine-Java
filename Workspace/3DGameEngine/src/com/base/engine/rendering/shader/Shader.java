@@ -88,6 +88,7 @@ public class Shader
 		addProgram(text, GL_FRAGMENT_SHADER);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void compileShader()
 	{
 		glLinkProgram(program);
@@ -107,6 +108,7 @@ public class Shader
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void addProgram(String text, int type)
 	{
 		int shader = glCreateShader(type);

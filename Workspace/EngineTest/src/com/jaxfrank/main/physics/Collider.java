@@ -1,7 +1,6 @@
 package com.jaxfrank.main.physics;
 
 import com.base.engine.math.Vector3f;
-import com.base.engine.rendering.Transform;
 
 public class Collider {
 

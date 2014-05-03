@@ -20,9 +20,9 @@ import com.base.engine.ui.listeners.IActionListener;
 
 public class CButton extends CRegion {
 
-	private Transform transform;
-	private Mesh mesh;
-	private Material mat;
+	protected Transform transform;
+	protected Mesh mesh;
+	protected Material mat;
 	
 	private State state = State.NORMAL;
 	private boolean beenPressed = false;
@@ -117,7 +117,7 @@ public class CButton extends CRegion {
 		DISABLED
 	}
 	
-	private void buildMesh(){
+	protected void buildMesh(){
 		Vertex[] verts = new Vertex[4];
 		verts[0] = new Vertex(new Vector3f(getPosition(), 0));
 		verts[1] = new Vertex(new Vector3f(getPosition().add(new Vector2f(0, getDimensions().getY())), 0));

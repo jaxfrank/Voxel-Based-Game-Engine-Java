@@ -1,7 +1,6 @@
 package com.base.engine.rendering;
 
 import com.base.engine.math.Vector3f;
-import com.base.engine.math.Vector4f;
 
 public class Material
 {

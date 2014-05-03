@@ -21,10 +21,6 @@ import com.base.engine.math.Vector3f;
 import com.base.engine.rendering.Camera;
 import com.base.engine.rendering.Transform;
 import com.base.engine.rendering.Vertex;
-import com.base.engine.rendering.lighting.BaseLight;
-import com.base.engine.rendering.lighting.PointLight;
-import com.base.engine.rendering.lighting.SpotLight;
-import com.base.engine.rendering.shader.Attenuation;
 import com.base.engine.rendering.shader.PhongShader;
 import com.base.engine.rendering.shader.Shader;
 import com.base.engine.util.Window;
@@ -32,9 +28,6 @@ import com.base.engine.util.time.Time;
 import com.jaxfrank.main.physics.BoxCollider;
 import com.jaxfrank.main.voxelEngine.block.Block;
 import com.jaxfrank.main.voxelEngine.rendering.WorldRenderer;
-import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.PlantRenderer;
-import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.StandardBlockRenderer;
-import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.TableRenderer;
 import com.jaxfrank.main.voxelEngine.world.World;
 
 public class Main extends MainComponent{
@@ -59,10 +52,10 @@ public class Main extends MainComponent{
 	private Transform transform;
 	private Camera camera;
 	
-	PointLight pLight1;
-	PointLight pLight2;
+	//PointLight pLight1;
+	//PointLight pLight2;
 	
-	SpotLight sLight1;
+	//SpotLight sLight1;
 	
 	public static WorldRenderer worldRenderer;
 	
@@ -112,13 +105,13 @@ public class Main extends MainComponent{
 		
 		PhongShader.setAmbientLight(new Vector3f(0.5f, 0.5f, 0.5f));
 	
-		pLight1 = new PointLight(new BaseLight(new Vector3f(128,128,128), 10f), new Attenuation(0,0,1), new Vector3f(0,128,0f), 1000000000);
-		pLight2 = new PointLight(new BaseLight(new Vector3f(0,1f,1), 10f), new Attenuation(0,0,1), new Vector3f(2,0,7f), 100);
-		PhongShader.setPointLight(new PointLight[]{pLight1, pLight2});
+		//pLight1 = new PointLight(new BaseLight(new Vector3f(128,128,128), 10f), new Attenuation(0,0,1), new Vector3f(0,128,0f), 1000000000);
+		//pLight2 = new PointLight(new BaseLight(new Vector3f(0,1f,1), 10f), new Attenuation(0,0,1), new Vector3f(2,0,7f), 100);
+		//PhongShader.setPointLight(new PointLight[]{pLight1, pLight2});
 		
-		sLight1 = new SpotLight(new PointLight(new BaseLight(new Vector3f(0,1f,1f), 0.8f), new Attenuation(0,0,0.1f), new Vector3f(-2,0,5f), 30),
-				  new Vector3f(1,1,1), 0.7f);
-		PhongShader.setSpotLights(new SpotLight[]{sLight1});
+		//sLight1 = new SpotLight(new PointLight(new BaseLight(new Vector3f(0,1f,1f), 0.8f), new Attenuation(0,0,0.1f), new Vector3f(-2,0,5f), 30),
+		//		  new Vector3f(1,1,1), 0.7f);
+		//PhongShader.setSpotLights(new SpotLight[]{sLight1});
 		int red = 3;
 		int green = 112;
 		int blue = 210;
@@ -135,7 +128,7 @@ public class Main extends MainComponent{
 	protected void input(){
 		camera.input();
 		
-		float movAmt = (float)(100 * Time.getDelta());//13
+		float movAmt = (float)(13 * Time.getDelta());//13
 		
 		if(Input.getKey(Input.KEY_ESCAPE))
 		{
@@ -174,8 +167,8 @@ public class Main extends MainComponent{
 			camera.setForward(new Vector3f(0, 0, -1f));
 			camera.setUp(new Vector3f(0, 1, 0));
 		}
-		sLight1.getPointLight().setPosition(camera.getPos());
-		sLight1.setDirection(camera.getForward());
+		//sLight1.getPointLight().setPosition(camera.getPos());
+		//sLight1.setDirection(camera.getForward());
 		
 		camera.setPos(newPos);
 		oldPos = newPos;

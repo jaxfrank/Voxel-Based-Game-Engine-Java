@@ -15,15 +15,18 @@ public class World {
 	
 	private static World instance;
 	
+	
 	public ConcurrentHashMap<Vector3i, Chunk> chunks = new ConcurrentHashMap<>();
-	//public ArrayList<Vector3i> loadedChunks = new ArrayList<>();
 	public HashSet<Vector3i> loadedChunks = new HashSet<>();
+	private HashSet<Vector3i> generated = new HashSet<Vector3i>();
 	private int seed;
 	
 	Random rand;
-	public int loadedChunkRadius = 9;
+	public int loadedChunkRadius = 10;
 	
 	private WorldGenerator generator;
+	private boolean forceChunkLoadUpdate = true;
+	private boolean updatedLoadList = false;
 	
 	public World(int seed){
 		this.seed = seed;
@@ -38,36 +41,36 @@ public class World {
 	}
 	
 	public void update(Vector3f playerPos){
-		loadedChunks.clear();
-		boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
-		Vector3i chunkPos = new Vector3i(0,0,0);
-		for(int i = -loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i < loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i++){
-			for(int j = -loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j < loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j++){
-				for(int k = -loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k < loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k++){
-					chunkPos = new Vector3i(i,j,k);
-					loadChunk(chunkPos);
-					Chunk c = chunks.get(chunkPos);
-					if(rebuild && c != null)
-						chunks.get(chunkPos).rebuild();
+		updatedLoadList = false;
+		if(forceChunkLoadUpdate || needLoadedChunkUpdate(playerPos)) {
+			updatedLoadList = true;
+			forceChunkLoadUpdate = false;
+			loadedChunks.clear();
+			boolean rebuild = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_R);
+			Vector3i chunkPos = new Vector3i(0,0,0);
+			for(int i = -loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i < loadedChunkRadius + ((int)playerPos.getX() / Chunk.getSize().getX()); i++){
+				for(int j = -loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j < loadedChunkRadius + ((int)playerPos.getY() / Chunk.getSize().getY()); j++){
+					for(int k = -loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k < loadedChunkRadius + ((int)playerPos.getZ() / Chunk.getSize().getZ()); k++){
+						chunkPos = new Vector3i(i,j,k);
+						Chunk c = chunks.get(chunkPos);
+						if(c != null) {
+							if(c.isGenerated()) {
+								loadedChunks.add(chunkPos);
+							}
+							if(rebuild)
+								c.rebuild();
+						} else {
+							if(!generated.contains(chunkPos)) {
+								generated.add(chunkPos);
+								getGenerator().chunksToGenerate.offer(chunkPos);
+							}
+						}
+					
+					}
 				}
 			}
 		}
 		getGenerator().update();
-	}
-	
-	private HashSet<Vector3i> generated = new HashSet<Vector3i>();
-	public void loadChunk(Vector3i location){
-		Chunk c = chunks.get(location);
-		if(c != null) {
-			if(c.isGenerated()) {
-				loadedChunks.add(location);
-			}
-		} else {
-			if(!generated.contains(location)) {
-				generated.add(location);
-				getGenerator().chunksToGenerate.offer(location);
-			}
-		}
 	}
 	
 	public Block getBlock(Vector3i chunkPos, Vector3i pos){
@@ -91,6 +94,21 @@ public class World {
 		return generator;
 	}
 
+	Vector3i previousPlayerChunkLocation = new Vector3i(10000000,1000000,1000000);
+	private boolean needLoadedChunkUpdate(Vector3f playerPos) {
+		Vector3i playerChunkPos = playerPos.getXYZi().div(Chunk.getSize());
+		if(!playerChunkPos.equals(playerPos)) {
+			previousPlayerChunkLocation = playerChunkPos;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean loadListChanged() {
+		return updatedLoadList;
+	}
+	
 	public static World getInstance() {
 		if(instance == null)
 			instance = new World(new Random().nextInt());
@@ -100,4 +118,5 @@ public class World {
 	public static void setInstance(World instance) {
 		World.instance = instance;
 	}
+	
 }

@@ -198,4 +198,6 @@ public class Vector3f
 	public Vector3f getZXY() {return new Vector3f(getZ(), getX(), getY()); }
 	public Vector3f getXZY() {return new Vector3f(getX(), getZ(), getY()); }
 	
+	public Vector3i getXYZi() {return new Vector3i(Math.round(getX()), Math.round(getY()), Math.round(getZ())); }
+	
 }

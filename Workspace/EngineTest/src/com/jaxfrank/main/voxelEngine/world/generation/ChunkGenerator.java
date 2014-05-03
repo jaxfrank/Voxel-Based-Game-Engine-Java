@@ -15,25 +15,35 @@ public class ChunkGenerator extends NotifyingThread{
 	private Vector3i currentChunkPos;
 	private float componentDivisor = 32;
 	private Chunk chunk;
+	private int xGlobal;
+	private int yGlobal;
+	private int zGlobal;
 	
 	@Override
 	public void execute() {
 		joise = new Joise(World.getInstance().getGenerator().getJoise().getModuleMap());
-		
+		long totalGenerationTime = 0;
+		int numChunksGenerated = 0;
 		while(true) {
 			if(World.getInstance().getGenerator().chunksToGenerate.size() == 0 )
 				break;
 			currentChunkPos = World.getInstance().getGenerator().chunksToGenerate.poll();
-			//System.out.println("Generating New Chunk!");
-			
-			World.getInstance().chunks.put(currentChunkPos, getChunk());
-			
+			long startTime = System.nanoTime();
+			Chunk c = getChunk();
+			totalGenerationTime += (System.nanoTime() - startTime);
+			numChunksGenerated++;
+			World.getInstance().chunks.put(currentChunkPos, c);
 		}
+		System.out.println("Chunks generated: " + numChunksGenerated + ", Average build time: " + totalGenerationTime / (double)numChunksGenerated / 1000000.0 + " milliseconds");
 	}
 	
 	private Chunk getChunk() {
 		chunk = new Chunk(currentChunkPos);
 		Vector3i blockPos;
+		xGlobal = currentChunkPos.getX() * Chunk.getWidth();
+		yGlobal = currentChunkPos.getY() * Chunk.getWidth();
+		zGlobal = currentChunkPos.getZ() * Chunk.getWidth();
+		
 		for(int i = 0; i < Chunk.getSize().getX(); i++) {
 			for(int k = 0; k < Chunk.getSize().getZ(); k++) {
 				for(int j = 0; j < Chunk.getSize().getY(); j++) {
@@ -66,6 +76,7 @@ public class ChunkGenerator extends NotifyingThread{
 		return chunk;
 	}
 	
+	@SuppressWarnings("unused")
 	private float getValue(Vector3i block) {
 		Vector3i globalBlockLocation = currentChunkPos.mul(Chunk.getSize()).add(block);
 		
@@ -79,9 +90,17 @@ public class ChunkGenerator extends NotifyingThread{
 	private short getBlockID(Vector3i blockPos) {
 		short block = 0;
 		
-		float value = getValue(blockPos);
-		if(value > 0)
+		float value = (float)joise.get( (blockPos.getX() + xGlobal) / componentDivisor, 
+										(blockPos.getY() + yGlobal) / componentDivisor, 
+										(blockPos.getZ() + zGlobal) / componentDivisor);
+		if(value > 0.5)
+			block = Main.air.getBlockID();
+		else if(value > 0.425)
 			block = Main.grass.getBlockID();
+		else if(value > 0.3)
+			block = Main.dirt.getBlockID();
+		else
+			block = Main.stone.getBlockID();
 		
 		return block;
 	}

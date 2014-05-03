@@ -3,11 +3,12 @@ package com.jaxfrank.main.voxelEngine.rendering;
 import java.util.ArrayList;
 
 import com.base.engine.math.Vector3i;
-import com.base.engine.rendering.Mesh;
 import com.base.engine.rendering.Vertex;
 import com.base.engine.util.Util;
 import com.base.engine.util.multiThread.NotifyingThread;
 import com.jaxfrank.main.Main;
+import com.jaxfrank.main.voxelEngine.block.Block;
+import com.jaxfrank.main.voxelEngine.rendering.blockRenderers.BlockRenderer;
 import com.jaxfrank.main.voxelEngine.world.Chunk;
 import com.jaxfrank.main.voxelEngine.world.World;
 
@@ -15,6 +16,8 @@ public class MeshBuilder extends NotifyingThread {
 
 	@Override
 	public void execute() {
+		long totalMeshBuildTime = 0;
+		int numMeshesBuilt = 0;
 		while(true) {
 			Vector3i chunkPos = new Vector3i(0,0,0);
 			synchronized (Main.worldRenderer.chunkRenderers) {
@@ -24,8 +27,12 @@ public class MeshBuilder extends NotifyingThread {
 			}
 			
 			World.getInstance().chunks.get(chunkPos).rebuilt();
+			long startTime = System.nanoTime();
 			generateMesh(World.getInstance().chunks.get(chunkPos), chunkPos);
+			totalMeshBuildTime += System.nanoTime() - startTime;
+			numMeshesBuilt++;
 		}
+		//System.out.println("Meshes Built: " + numMeshesBuilt + ", Average build time: " + totalMeshBuildTime / (double)numMeshesBuilt / 1000000.0 + " milliseconds");
 	}
 	
 	private void generateMesh(Chunk chunk, Vector3i chunkPos) {
@@ -39,13 +46,15 @@ public class MeshBuilder extends NotifyingThread {
 			for(int j = 0; j < Chunk.getHeight(); j++){
 				for(int k = 0; k < Chunk.getDepth(); k++){
 					Vector3i blockPos = new Vector3i(i,j,k);
-					if(!chunk.getBlockNoBoundsCheck(blockPos).isRendered()) continue; // if the current block doesn't have a texture then don't bother trying to calculate the vertices
-
-					if(WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()) != null) {
-						if(chunk.getBlockNoBoundsCheck(blockPos).isOpaqueCube())
-							WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()).generate(vertices, indices, World.getInstance(), chunk, blockPos);
+					Block b = Block.blocks.get(chunk.getBlockIDNoBoundsCheck(i, j, k));
+					if(!b.isRendered()) continue; // if the current block doesn't have a texture then don't bother trying to calculate the vertices
+					int rendererID = b.getRendererID();
+					BlockRenderer renderer = WorldRenderer.renderers.get(rendererID);
+					if(renderer != null) {
+						if(b.isOpaqueCube())
+							renderer.generate(vertices, indices, World.getInstance(), chunk, blockPos);
 						else {
-							WorldRenderer.renderers.get(chunk.getBlockNoBoundsCheck(blockPos).getRendererID()).generate(transparentVertices, transparentIndices, World.getInstance(), chunk, blockPos);
+							renderer.generate(transparentVertices, transparentIndices, World.getInstance(), chunk, blockPos);
 						}
 					} else {
 						System.err.println("Trying to use invalid block renderer: " + chunk.getBlockNoBoundsCheck(blockPos).getRendererID());
@@ -57,18 +66,22 @@ public class MeshBuilder extends NotifyingThread {
 		}
 		
 		Vertex[] opaqueVerts = new Vertex[vertices.size()];
-		Integer[] opaqueIndices = new Integer[indices.size()];
+		int[] opaqueIndices = new int[indices.size()];
 		
 		vertices.toArray(opaqueVerts);
-		indices.toArray(opaqueIndices);
+		for(int i = 0; i < indices.size(); i++) {
+			opaqueIndices[i] = indices.get(i);
+		}
 		
 		Vertex[] transparentVerts = new Vertex[transparentVertices.size()];
-		Integer[] transparentIndicesArray = new Integer[transparentIndices.size()];
+		int[] transparentIndicesArray = new int[transparentIndices.size()];
 		
 		transparentVertices.toArray(transparentVerts);
-		transparentIndices.toArray(transparentIndicesArray);
+		for(int i = 0; i < transparentIndices.size(); i++) {
+			transparentIndicesArray[i] = transparentIndices.get(i);
+		}
 		
-		Main.worldRenderer.chunkRenderers.get(chunkPos).setTempData(opaqueVerts, Util.toIntArray(opaqueIndices), transparentVerts, Util.toIntArray(transparentIndicesArray));
+		Main.worldRenderer.chunkRenderers.get(chunkPos).setTempData(opaqueVerts, opaqueIndices, transparentVerts, transparentIndicesArray);
 		
 	}
 	
